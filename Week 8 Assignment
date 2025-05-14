@@ -1,1 +1,119 @@
+-- House Renting and Sales Database Management System
 
+-- Table: Users (Stores information about users)
+CREATE TABLE Users (
+    UserID INT AUTO_INCREMENT PRIMARY KEY,
+    FirstName VARCHAR(50) NOT NULL,
+    LastName VARCHAR(50) NOT NULL,
+    Email VARCHAR(100) UNIQUE NOT NULL,
+    PhoneNumber VARCHAR(15) NOT NULL,
+    UserType ENUM('Buyer', 'Seller', 'Agent') NOT NULL,
+    RegistrationDate DATE NOT NULL
+);
+
+-- Table: Properties (Stores information about properties)
+CREATE TABLE Properties (
+    PropertyID INT AUTO_INCREMENT PRIMARY KEY,
+    OwnerID INT NOT NULL,
+    Address VARCHAR(255) NOT NULL,
+    City VARCHAR(100) NOT NULL,
+    State VARCHAR(100) NOT NULL,
+    ZipCode VARCHAR(10) NOT NULL,
+    PropertyType ENUM('House', 'Apartment', 'Condo') NOT NULL,
+    Status ENUM('For Sale', 'For Rent') NOT NULL,
+    Price DECIMAL(15, 2) NOT NULL CHECK (Price > 0),
+    FOREIGN KEY (OwnerID) REFERENCES Users(UserID) ON DELETE CASCADE
+);
+
+-- Table: Rentals (Tracks rental agreements)
+CREATE TABLE Rentals (
+    RentalID INT AUTO_INCREMENT PRIMARY KEY,
+    PropertyID INT NOT NULL,
+    RenterID INT NOT NULL,
+    RentStartDate DATE NOT NULL,
+    RentEndDate DATE,
+    MonthlyRent DECIMAL(10, 2) NOT NULL CHECK (MonthlyRent > 0),
+    FOREIGN KEY (PropertyID) REFERENCES Properties(PropertyID) ON DELETE CASCADE,
+    FOREIGN KEY (RenterID) REFERENCES Users(UserID) ON DELETE CASCADE
+);
+
+-- Table: Sales (Tracks property sales)
+CREATE TABLE Sales (
+    SaleID INT AUTO_INCREMENT PRIMARY KEY,
+    PropertyID INT NOT NULL,
+    BuyerID INT NOT NULL,
+    SaleDate DATE NOT NULL,
+    SalePrice DECIMAL(15, 2) NOT NULL CHECK (SalePrice > 0),
+    FOREIGN KEY (PropertyID) REFERENCES Properties(PropertyID) ON DELETE CASCADE,
+    FOREIGN KEY (BuyerID) REFERENCES Users(UserID) ON DELETE CASCADE
+);
+
+-- Table: PropertyImages (Stores images for properties)
+CREATE TABLE PropertyImages (
+    ImageID INT AUTO_INCREMENT PRIMARY KEY,
+    PropertyID INT NOT NULL,
+    ImageURL VARCHAR(255) NOT NULL,
+    FOREIGN KEY (PropertyID) REFERENCES Properties(PropertyID) ON DELETE CASCADE
+);
+
+-- Table: PropertyFeatures (Stores features for properties)
+CREATE TABLE PropertyFeatures (
+    FeatureID INT AUTO_INCREMENT PRIMARY KEY,
+    FeatureName VARCHAR(100) UNIQUE NOT NULL
+);
+
+-- Table: PropertyFeatureMapping (Many-to-Many relationship between Properties and Features)
+CREATE TABLE PropertyFeatureMapping (
+    PropertyID INT NOT NULL,
+    FeatureID INT NOT NULL,
+    PRIMARY KEY (PropertyID, FeatureID),
+    FOREIGN KEY (PropertyID) REFERENCES Properties(PropertyID) ON DELETE CASCADE,
+    FOREIGN KEY (FeatureID) REFERENCES PropertyFeatures(FeatureID) ON DELETE CASCADE
+);
+-- Table: Agents (Stores information about agents)
+CREATE TABLE Agents (
+    AgentID INT AUTO_INCREMENT PRIMARY KEY,
+    FirstName VARCHAR(50) NOT NULL,
+    LastName VARCHAR(50) NOT NULL,
+    Email VARCHAR(100) UNIQUE NOT NULL,
+    PhoneNumber VARCHAR(15) NOT NULL,
+    HireDate DATE NOT NULL
+);
+
+-- Add a relationship between Properties and Agents (1-M relationship)
+ALTER TABLE Properties
+ADD COLUMN AgentID INT,
+ADD FOREIGN KEY (AgentID) REFERENCES Agents(AgentID) ON DELETE SET NULL;
+-- Table: Reviews (Stores reviews for properties)
+CREATE TABLE Reviews (
+    ReviewID INT AUTO_INCREMENT PRIMARY KEY,
+    PropertyID INT NOT NULL,
+    ReviewerID INT NOT NULL,
+    Rating INT CHECK (Rating BETWEEN 1 AND 5),
+    ReviewText TEXT,
+    ReviewDate DATE NOT NULL,
+    FOREIGN KEY (PropertyID) REFERENCES Properties(PropertyID) ON DELETE CASCADE,
+    FOREIGN KEY (ReviewerID) REFERENCES Users(UserID) ON DELETE CASCADE
+);
+
+-- Table: Payments (Tracks payments for rentals and sales)
+CREATE TABLE Payments (
+    PaymentID INT AUTO_INCREMENT PRIMARY KEY,
+    PaymentType ENUM('Rental', 'Sale') NOT NULL,
+    TransactionDate DATE NOT NULL,
+    Amount DECIMAL(15, 2) NOT NULL CHECK (Amount > 0),
+    RentalID INT,
+    SaleID INT,
+    FOREIGN KEY (RentalID) REFERENCES Rentals(RentalID) ON DELETE CASCADE,
+    FOREIGN KEY (SaleID) REFERENCES Sales(SaleID) ON DELETE CASCADE
+);
+
+-- Table: Favorites (Tracks users' favorite properties)
+CREATE TABLE Favorites (
+    FavoriteID INT AUTO_INCREMENT PRIMARY KEY,
+    UserID INT NOT NULL,
+    PropertyID INT NOT NULL,
+    AddedDate DATE NOT NULL,
+    FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE,
+    FOREIGN KEY (PropertyID) REFERENCES Properties(PropertyID) ON DELETE CASCADE
+);
