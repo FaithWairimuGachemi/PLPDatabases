@@ -1,0 +1,36 @@
+--Question 1
+-- Create a new table to store the normalized data
+CREATE TABLE ProductDetail_1NF (
+    OrderID INT,
+    CustomerName VARCHAR(100),
+    Product VARCHAR(100)
+);
+
+-- Insert normalized data into the new table
+INSERT INTO ProductDetail_1NF (OrderID, CustomerName, Product)
+VALUES 
+(11, 'Sally', 'Laptop'),
+(11, 'Sally', 'Mouse'),
+(12, 'Simon', 'Tablet'),
+(12, 'Simon', 'Keyboard'),
+(12, 'Simon', 'Mouse'),
+(13, 'Nancy', 'Phone');
+
+--Question 2
+CREATE TABLE OrderDetails (
+    OrderID INT,
+    Product VARCHAR(100),
+    Quantity INT,
+    PRIMARY KEY (OrderID, Product)
+);
+
+-- Insert data into the OrderDetails table
+INSERT INTO OrderDetails (OrderID, Product, Quantity)
+VALUES 
+(11, 'Laptop', 2),
+(11, 'Mouse', 1),
+(12, 'Tablet', 3),
+(12, 'Keyboard', 1),
+(12, 'Mouse', 2),
+(13, 'Phone', 1);
+
