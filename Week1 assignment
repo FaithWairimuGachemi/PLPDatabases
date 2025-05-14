@@ -1,0 +1,5 @@
+--creating a database
+CREATE DATABASE salesDB;
+
+--deleting a database
+DROP DATABASE demo;
